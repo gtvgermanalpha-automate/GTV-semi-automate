@@ -33,12 +33,13 @@ logging.basicConfig(
 logger = logging.getLogger("onbuy_sync")
 
 # ================= CONFIG =================
-# GTV SEMI (CSV) VARIANT - DORMANT STANDBY. GTV production runs the
-# full-auto system (OnBuy API push) in the GTV-automate repo; this CSV
-# variant exists as a switchable fallback and must stay dormant (no
-# secrets, schedules disabled) while full-auto manages the store -
-# both would read the same OnBuy_Feed_Master sheet and double-spend
-# the eBay budget. Key difference from the
+# GTV SEMI (CSV) LINE - an INDEPENDENT parallel product line for the GTV
+# OnBuy seller account. The full-auto system (OnBuy API push) lives in the
+# GTV-automate repo with its own sheet (OnBuy_Feed_Master); THIS pipeline
+# has its own sheet (GTV_Feed_Master) and Supabase table, runs its own
+# batches, and updates OnBuy manually via the exported CSV. Both lines may
+# run at the same time - the two hard rules are in the README: split the
+# shared eBay daily budget, and never put the same barcode in both sheets. Key difference from the
 # original store: OnBuy is updated MANUALLY via CSV export here - this
 # pipeline only fetches from eBay, fills the Sheet, raises change alerts for
 # employees to act on, and mirrors everything to Supabase. It never calls
@@ -48,7 +49,7 @@ EBAY_CLIENT_SECRET = os.getenv("EBAY_CLIENT_SECRET")
 
 # The Google Sheet this store runs on (must be shared, as Editor, with the
 # service account email inside GOOGLE_CREDENTIALS).
-SHEET_NAME = os.getenv("SHEET_NAME") or "OnBuy_Feed_Master"
+SHEET_NAME = os.getenv("SHEET_NAME") or "GTV_Feed_Master"
 
 # ================= SETTINGS =================
 
@@ -65,7 +66,10 @@ RUN_CATEGORY_MAPPING = True
 # comfortably under eBay's rate limit (commonly ~5,000/day on the default
 # Browse API tier - check your exact allowance in the eBay Developer Portal
 # and adjust this if yours differs).
-EBAY_DAILY_CALL_BUDGET = int(os.getenv("EBAY_DAILY_CALL_BUDGET") or "4000")
+# Default 1000, NOT 4000: this line usually shares its eBay keyset with the
+# full-auto system (5,000/day total) - the two repos' budgets must sum well
+# under that. Rebalance via the EBAY_DAILY_CALL_BUDGET repo Variable.
+EBAY_DAILY_CALL_BUDGET = int(os.getenv("EBAY_DAILY_CALL_BUDGET") or "1000")
 
 # How many times this workflow runs per day - keep in sync with the cron
 # schedule in .github/workflows/run.yml (currently every 3 hours = 8/day).

@@ -1,20 +1,26 @@
-# GTV Semi (CSV) variant - DORMANT STANDBY
+# GTV Semi (CSV) line - independent parallel workflow
 
-**This repo does not run GTV.** Production GTV is the full-automation
-system (OnBuy API push) in the `GTV-automate` repo. This CSV/manual
-variant is kept ready as a switchable fallback. To activate it:
-1. FIRST disable the schedules in `GTV-automate` - never both at once
-   (same Sheet, same eBay budget, same OnBuy account).
-2. Add the CSV-workflow headers this variant needs to the live
-   `OnBuy_Feed_Master` sheet's row 1 (they don't exist there - the
-   full-auto system doesn't use them): `Price Check Flag`,
-   `Change Alert`, `Change Time`, `Applied on OnBuy`,
-   `Exported to OnBuy`, `Supplier`, `Variant Choice`, `Variant Group`,
-   `Variant`, `Remove` - each in the next empty header cell.
-3. Add this repo's secrets (same list as any CSV store's README) and
-   enable its schedules.
-It reads the SAME live sheet on purpose: an activated fallback inherits
-the full catalog instantly instead of starting from an empty copy.
+GTV runs **two independent product lines** on the same OnBuy seller
+account:
+
+- **Full-auto** (`GTV-automate` repo): sheet `OnBuy_Feed_Master`, pushes
+  to OnBuy automatically via its API.
+- **This repo (semi/CSV)**: its own sheet **`GTV_Feed_Master`** and its
+  own Supabase table `GTV_Feed_Master`; OnBuy is updated manually via the
+  exported CSV, exactly like the other CSV stores.
+
+Each line has its own schedules, and either can be enabled or disabled
+independently from its repo's **Actions tab** (open the workflow ->
+"..." menu -> Enable/Disable workflow).
+
+Two hard rules for running both at once:
+
+1. **Shared eBay keys = one shared 5,000/day quota.** Keep the two
+   repos' `EBAY_DAILY_CALL_BUDGET` values summing well under it -
+   recommended: full-auto `3000`, this repo `1000` (this repo's built-in
+   default is already 1000).
+2. **A product lives in exactly ONE of the two sheets.** The same
+   barcode digits in both would collide as the same product on OnBuy.
 
 ---
 
@@ -86,7 +92,7 @@ columns are ignored (harmless to leave in the Sheet and Supabase).
 
 ## Setup checklist
 
-**Google Sheet** — name it `OnBuy_Feed_Master` (or set the `SHEET_NAME`
+**Google Sheet** — name it `GTV_Feed_Master` (or set the `SHEET_NAME`
 Variable), paste the header row from `sheet_headers.csv` into row 1, and
 share the Sheet (Editor) with the service account's email (the
 `client_email` inside the credentials JSON).
@@ -123,7 +129,7 @@ Storage bucket with that name if set), `EBAY_DAILY_CALL_BUDGET` /
 which avoids the partial-upsert NOT NULL trap by design):
 
 ```sql
-create table "OnBuy_Feed_Master" (
+create table "GTV_Feed_Master" (
   "SKU" text primary key,
   "Title" text, "Description" text, "Brand" text, "Category" text,
   "Category ID" text, "Supplier URL" text, "Supplier" text,
@@ -144,13 +150,13 @@ If the table already exists without the three variant columns, add them
 with:
 
 ```sql
-alter table "OnBuy_Feed_Master"
+alter table "GTV_Feed_Master"
   add column "Variant Choice" text,
   add column "Variant Group" text,
   add column "Variant" text;
 ```
 
-The code already defaults to this table name (`OnBuy_Feed_Master`) — only
+The code already defaults to this table name (`GTV_Feed_Master`) — only
 set a `SUPABASE_TABLE_NAME` env var if you named the table differently.
 
 **eBay** — the developer account is pending approval; until the two eBay

@@ -1,7 +1,7 @@
 """Upserts processed product rows into the Supabase Postgres table.
 
 Distinct from storage.py (which uploads feed.xml to Supabase Storage) - this
-writes to the actual "OnBuy_Feed_Master" table via PostgREST, using the
+writes to the actual "GTV_Feed_Master" table via PostgREST, using the
 upsert-via-POST pattern (Prefer: resolution=merge-duplicates) keyed on SKU,
 the table's primary key. This mirrors what gets written to the Google Sheet
 so Supabase accumulates a queryable copy of the catalog without yet becoming
@@ -17,7 +17,7 @@ logger = logging.getLogger("onbuy_sync")
 # Case-sensitive - matches the quoted identifier in the table DDL (see the
 # CREATE TABLE statement in README.md). Override with SUPABASE_TABLE_NAME if
 # the table is named differently.
-TABLE_NAME = os.getenv("SUPABASE_TABLE_NAME") or "OnBuy_Feed_Master"
+TABLE_NAME = os.getenv("SUPABASE_TABLE_NAME") or "GTV_Feed_Master"
 
 
 def upsert_products(rows):

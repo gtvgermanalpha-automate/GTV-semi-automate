@@ -2,8 +2,7 @@ name: GTV Semi Sync
 
 on:
   schedule:
-    - cron: "50 */3 * * *"   # every 3 hours at :50 - DORMANT STANDBY; if ever activated,
-                             # first DISABLE the full-auto schedules in GTV-automate
+    - cron: "50 */3 * * *"   # every 3 hours at :50 - the semi line's own slot (full-auto runs :00)
   workflow_dispatch:
 
 # A manual run and a scheduled run must never fetch at the same time - they
