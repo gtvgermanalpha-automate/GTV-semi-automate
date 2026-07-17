@@ -2,10 +2,19 @@
 
 **This repo does not run GTV.** Production GTV is the full-automation
 system (OnBuy API push) in the `GTV-automate` repo. This CSV/manual
-variant is kept ready as a switchable fallback: to activate it, FIRST
-disable the schedules in `GTV-automate`, then add this repo's secrets
-and enable its schedules - never both at once (same Sheet, same eBay
-budget, same OnBuy account).
+variant is kept ready as a switchable fallback. To activate it:
+1. FIRST disable the schedules in `GTV-automate` - never both at once
+   (same Sheet, same eBay budget, same OnBuy account).
+2. Add the CSV-workflow headers this variant needs to the live
+   `OnBuy_Feed_Master` sheet's row 1 (they don't exist there - the
+   full-auto system doesn't use them): `Price Check Flag`,
+   `Change Alert`, `Change Time`, `Applied on OnBuy`,
+   `Exported to OnBuy`, `Supplier`, `Variant Choice`, `Variant Group`,
+   `Variant`, `Remove` - each in the next empty header cell.
+3. Add this repo's secrets (same list as any CSV store's README) and
+   enable its schedules.
+It reads the SAME live sheet on purpose: an activated fallback inherits
+the full catalog instantly instead of starting from an empty copy.
 
 ---
 
