@@ -54,7 +54,10 @@ jobs:
           SHEET_NAME: ${{ vars.SHEET_NAME }}
           # Batch size scales automatically from these two - RUNS_PER_DAY
           # must match the cron above (every 3h = 8/day).
-          EBAY_DAILY_CALL_BUDGET: ${{ vars.EBAY_DAILY_CALL_BUDGET }}
+          # TEMP while GTV full-auto is PAUSED (awaiting OnBuy support): the semi
+          # line takes the whole shared eBay keyset budget. REVERT to plain
+          # vars.EBAY_DAILY_CALL_BUDGET (code default 1000) when full-auto resumes.
+          EBAY_DAILY_CALL_BUDGET: ${{ vars.EBAY_DAILY_CALL_BUDGET || '4000' }}
           RUNS_PER_DAY: ${{ vars.RUNS_PER_DAY || '12' }}
           MAX_PRODUCTS_PER_RUN: ${{ inputs.max_products || vars.MAX_PRODUCTS_PER_RUN }}
           REFRESH_ALL: ${{ inputs.refresh_all }}
