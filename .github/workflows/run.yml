@@ -63,6 +63,7 @@ jobs:
           # vars.EBAY_DAILY_CALL_BUDGET (code default 1000) when full-auto resumes.
           EBAY_DAILY_CALL_BUDGET: ${{ vars.EBAY_DAILY_CALL_BUDGET || '1000' }}
           RUNS_PER_DAY: ${{ vars.RUNS_PER_DAY || '12' }}
+          EXCLUDED_SUPPLIERS: ${{ vars.EXCLUDED_SUPPLIERS }}
           MAX_PRODUCTS_PER_RUN: ${{ inputs.max_products || vars.MAX_PRODUCTS_PER_RUN }}
           REFRESH_ALL: ${{ inputs.refresh_all }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
